@@ -202,6 +202,11 @@ web3._extend({
 			params: 2
 		}),
 		new web3._extend.Method({
+			name: 'storageProof',
+			call: 'debug_storageProof',
+			params: 3
+		}),
+		new web3._extend.Method({
 			name: 'setHead',
 			call: 'debug_setHead',
 			params: 1
