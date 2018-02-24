@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+//	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/log"
 )
@@ -253,6 +254,7 @@ func (db *Database) Commit(node common.Hash, report bool) error {
 
 	// Move all of the accumulated preimages into a write batch
 	for hash, preimage := range db.preimages {
+        // log.Info("Putting a key", "key", hexutil.Encode(hash[:]))
 		if err := batch.Put(db.secureKey(hash[:]), preimage); err != nil {
 			log.Error("Failed to commit preimage from trie database", "err", err)
 			db.lock.RUnlock()
@@ -314,6 +316,8 @@ func (db *Database) commit(hash common.Hash, batch ethdb.Batch) error {
 			return err
 		}
 	}
+    
+    // log.Info("Putting a key", "key", hexutil.Encode(hash[:]))
 	if err := batch.Put(hash[:], node.blob); err != nil {
 		return err
 	}

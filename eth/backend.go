@@ -262,6 +262,11 @@ func (s *Ethereum) APIs() []rpc.API {
 			Service:   NewPublicMinerAPI(s),
 			Public:    true,
 		}, {
+			Namespace: "debug",
+			Version:   "1.0",
+			Service:   NewPublicQueryAPI(s),
+			Public:    true,
+		}, {
 			Namespace: "eth",
 			Version:   "1.0",
 			Service:   downloader.NewPublicDownloaderAPI(s.protocolManager.downloader, s.eventMux),

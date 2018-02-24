@@ -34,6 +34,24 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
+/*
+type BlockChain interface {
+	Config() *params.ChainConfig
+	HasHeader(hash common.Hash, number uint64) bool
+	GetHeader(hash common.Hash, number uint64) *types.Header
+	GetHeaderByHash(hash common.Hash) *types.Header
+	CurrentHeader() *types.Header
+	GetTd(hash common.Hash, number uint64) *big.Int
+	State() (*state.StateDB, error)
+	InsertHeaderChain(chain []*types.Header, checkFreq int) (int, error)
+	Rollback(chain []common.Hash)
+	GetHeaderByNumber(number uint64) *types.Header
+	GetBlockHashesFromHash(hash common.Hash, max uint64) []common.Hash
+	Genesis() *types.Block
+	SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.Subscription
+}
+*/
+
 // Backend interface provides the common API services (that are provided by
 // both full and light clients) with access to necessary functions.
 type Backend interface {
@@ -44,6 +62,8 @@ type Backend interface {
 	ChainDb() ethdb.Database
 	EventMux() *event.TypeMux
 	AccountManager() *accounts.Manager
+    
+    // BlockChain() BlockChain
 
 	// BlockChain API
 	SetHead(number uint64)

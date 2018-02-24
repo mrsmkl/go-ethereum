@@ -1391,6 +1391,22 @@ func (api *PublicDebugAPI) PrintBlock(ctx context.Context, number uint64) (strin
 	return block.String(), nil
 }
 
+// PrintBlock retrieves a block and returns its pretty printed form.
+func (api *PublicDebugAPI) ReverseHash(ctx context.Context, key hexutil.Bytes) (hexutil.Bytes, error) {
+    db := api.b.ChainDb()
+    /*
+    err := db.Put(key, key)
+    if err != nil {
+        return nil, err
+    }*/
+    value, err := db.Get(key)
+    if err != nil {
+        return nil, err
+    }
+    return value, nil
+}
+
+
 // SeedHash retrieves the seed hash of a block.
 func (api *PublicDebugAPI) SeedHash(ctx context.Context, number uint64) (string, error) {
 	block, _ := api.b.BlockByNumber(ctx, rpc.BlockNumber(number))

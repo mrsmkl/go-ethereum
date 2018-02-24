@@ -192,6 +192,16 @@ web3._extend({
 			params: 1
 		}),
 		new web3._extend.Method({
+			name: 'reverseHash',
+			call: 'debug_reverseHash',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'accountProof',
+			call: 'debug_accountProof',
+			params: 2
+		}),
+		new web3._extend.Method({
 			name: 'setHead',
 			call: 'debug_setHead',
 			params: 1
