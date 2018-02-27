@@ -50,13 +50,16 @@ func (t *Trie) Prove(key []byte, fromLevel uint, proofDb ethdb.Putter) error {
 				key = key[len(n.Key):]
 			}
 			nodes = append(nodes, n)
+            // log.Warn("Short node", "node", n)
 		case *fullNode:
 			tn = n.Children[key[0]]
 			key = key[1:]
 			nodes = append(nodes, n)
+            // log.Warn("Full node", "node", n)
 		case hashNode:
 			var err error
 			tn, err = t.resolveHash(n, nil)
+            // log.Warn("Hash node", "node", n)
 			if err != nil {
 				log.Error(fmt.Sprintf("Unhandled trie error: %v", err))
 				return err

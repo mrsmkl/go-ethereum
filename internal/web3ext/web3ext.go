@@ -196,16 +196,7 @@ web3._extend({
 			call: 'debug_reverseHash',
 			params: 1
 		}),
-		new web3._extend.Method({
-			name: 'accountProof',
-			call: 'debug_accountProof',
-			params: 2
-		}),
-		new web3._extend.Method({
-			name: 'storageProof',
-			call: 'debug_storageProof',
-			params: 3
-		}),
+
 		new web3._extend.Method({
 			name: 'setHead',
 			call: 'debug_setHead',
@@ -395,6 +386,26 @@ web3._extend({
 	property: 'eth',
 	methods: [
 		new web3._extend.Method({
+			name: 'accountProof',
+			call: 'eth_accountProof',
+			params: 2
+		}),
+		new web3._extend.Method({
+			name: 'accountRLP',
+			call: 'eth_accountRLP',
+			params: 2
+		}),
+		new web3._extend.Method({
+			name: 'getBlockHeader',
+			call: 'eth_getBlockHeader',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'storageProof',
+			call: 'eth_storageProof',
+			params: 3
+		}),
+        new web3._extend.Method({
 			name: 'sign',
 			call: 'eth_sign',
 			params: 2,

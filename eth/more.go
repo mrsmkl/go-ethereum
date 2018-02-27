@@ -12,7 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/light"
 	"github.com/ethereum/go-ethereum/rlp"
 //  "github.com/ethereum/go-ethereum/trie"
-	"github.com/ethereum/go-ethereum/log"
+//	"github.com/ethereum/go-ethereum/log"
 )
 
 type PublicQueryAPI struct {
@@ -24,7 +24,7 @@ func NewPublicQueryAPI(b *Ethereum) *PublicQueryAPI {
 }
 
 // PrintBlock retrieves a block and returns its pretty printed form.
-func (api *PublicQueryAPI) AccountProof(ctx context.Context, bhash hexutil.Bytes, key hexutil.Bytes) (hexutil.Bytes, error) {
+func (api *PublicQueryAPI) AccountProof(ctx context.Context, bhash hexutil.Bytes, key hexutil.Bytes) ([]hexutil.Bytes, error) {
     db := api.b.ChainDb()
     hash := common.BytesToHash(bhash)
     header := core.GetHeader(db, hash, core.GetBlockNumber(db, hash))
@@ -40,56 +40,74 @@ func (api *PublicQueryAPI) AccountProof(ctx context.Context, bhash hexutil.Bytes
         return nil, err
     }
     
-    /*
-    test how to get stuff from trie
-    bts, err := trie.TryGet(key)
-    
-    if err != nil {
-       return nil, err
-    }
-    
-    if bts != nil {
-       return bts, nil
-    }
-    */
-    
     var proof light.NodeList
-    var proofs [][]rlp.RawValue
 
     trie.Prove(key, 0, &proof)
+    
+    res := make([]hexutil.Bytes, len(proof))
+    for i, v := range proof {
+        res[i] = hexutil.Bytes(v)
+    }
+    return res, nil
+}
 
-	proofs = append(proofs, proof)
-    rlp, err := rlp.EncodeToBytes(proofs)
+func (api *PublicQueryAPI) AccountRLP(ctx context.Context, bhash hexutil.Bytes, key hexutil.Bytes) (hexutil.Bytes, error) {
+    db := api.b.ChainDb()
+    hash := common.BytesToHash(bhash)
+    header := core.GetHeader(db, hash, core.GetBlockNumber(db, hash))
+    if header == nil {
+        return nil, fmt.Errorf("Did not find the header")
+    }
+    statedb, err := api.b.BlockChain().State()
     if err != nil {
         return nil, err
     }
-    return rlp, nil
+    trie, err := statedb.Database().OpenTrie(header.Root)
+    if err != nil {
+        return nil, err
+    }
+    
+    blob, err := trie.TryGet(key)
+	if err != nil {
+		return nil, fmt.Errorf("try get failure %s", err)
+	}
+    
+    return blob, nil
 }
 
-func (api *PublicQueryAPI) getAccount(statedb *state.StateDB, root common.Hash, /* hash common.Hash */ key hexutil.Bytes) (state.Account, error) {
+func (api *PublicQueryAPI) GetBlockHeader(ctx context.Context, bhash hexutil.Bytes) (hexutil.Bytes, error) {
+    db := api.b.ChainDb()
+    hash := common.BytesToHash(bhash)
+    header := core.GetHeader(db, hash, core.GetBlockNumber(db, hash))
+    if header == nil {
+        return nil, fmt.Errorf("Did not find the header")
+    }
+    res, err := rlp.EncodeToBytes(header)
+    if err != nil {
+        return nil, err
+    }
+    return res, nil
+}
+
+func (api *PublicQueryAPI) getAccount(statedb *state.StateDB, root common.Hash, key hexutil.Bytes) (state.Account, error) {
     trie, err := statedb.Database().OpenTrie(root)
     if err != nil {
         return state.Account{}, err
     }
     
     blob, err := trie.TryGet(key)
-/*    trie, err := trie.New(root, statedb.Database().TrieDB())
-	if err != nil {
-        return state.Account{}, fmt.Errorf("trie failure %s", err)
-	}
-	blob, err := trie.TryGet(hash[:]) */
 	if err != nil {
 		return state.Account{}, fmt.Errorf("try get failure %s", err)
 	}
 	var account state.Account
 	if err = rlp.DecodeBytes(blob, &account); err != nil {
-        log.Warn("Got RLP", "blob", blob)
+        // log.Warn("Got RLP", "blob", blob)
 		return state.Account{}, fmt.Errorf("rlp failure %s", err)
 	}
 	return account, nil
 }
 
-func (api *PublicQueryAPI) StorageProof(ctx context.Context, bhash hexutil.Bytes, addr hexutil.Bytes, ptr hexutil.Bytes) (hexutil.Bytes, error) {
+func (api *PublicQueryAPI) StorageProof(ctx context.Context, bhash hexutil.Bytes, addr hexutil.Bytes, ptr hexutil.Bytes) ([]hexutil.Bytes, error) {
     db := api.b.ChainDb()
     hash := common.BytesToHash(bhash)
     header := core.GetHeader(db, hash, core.GetBlockNumber(db, hash))
@@ -112,15 +130,14 @@ func (api *PublicQueryAPI) StorageProof(ctx context.Context, bhash hexutil.Bytes
     }
     
     var proof light.NodeList
-    var proofs [][]rlp.RawValue
 
     trie.Prove(ptr, 0, &proof)
-
-	proofs = append(proofs, proof)
-    rlp, err := rlp.EncodeToBytes(proofs)
-    if err != nil {
-        return nil, err
+    
+    res := make([]hexutil.Bytes, len(proof))
+    for i, v := range proof {
+        res[i] = hexutil.Bytes(v)
     }
-    return rlp, nil
+    return res, nil
+
 }
 
