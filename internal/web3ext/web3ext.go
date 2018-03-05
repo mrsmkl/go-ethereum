@@ -405,6 +405,11 @@ web3._extend({
 			call: 'eth_storageProof',
 			params: 3
 		}),
+		new web3._extend.Method({
+			name: 'storageCell',
+			call: 'eth_storageCell',
+			params: 3
+		}),
         new web3._extend.Method({
 			name: 'sign',
 			call: 'eth_sign',

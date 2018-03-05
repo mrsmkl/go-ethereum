@@ -141,3 +141,35 @@ func (api *PublicQueryAPI) StorageProof(ctx context.Context, bhash hexutil.Bytes
 
 }
 
+func (api *PublicQueryAPI) StorageCell(ctx context.Context, bhash hexutil.Bytes, addr hexutil.Bytes, ptr hexutil.Bytes) (hexutil.Bytes, error) {
+    db := api.b.ChainDb()
+    hash := common.BytesToHash(bhash)
+    header := core.GetHeader(db, hash, core.GetBlockNumber(db, hash))
+    if header == nil {
+        return nil, fmt.Errorf("Did not find the header")
+    }
+    statedb, err := api.b.BlockChain().State()
+    if err != nil {
+        return nil, err
+    }
+    
+    zero := make(hexutil.Bytes, 0)
+    // zero[0] = 0x80
+
+    account, err := api.getAccount(statedb, header.Root, addr)
+	if err != nil {
+        return zero, nil
+	}
+    trie, err := statedb.Database().OpenStorageTrie(common.BytesToHash(addr), account.Root)
+    if err != nil {
+        return zero, nil
+    }
+    
+    blob, err := trie.TryGet(ptr)
+	if err != nil {
+		return zero, nil
+	}
+    return blob, nil
+
+}
+
